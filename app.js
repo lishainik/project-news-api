@@ -34,7 +34,7 @@ mongoose.connect('mongodb://localhost:27017/diploma-db', {
   useFindAndModify: false,
   useUnifiedTopology: true,
 });
-
+app.set('trust proxy', 1);
 app.use(requestLogger);
 
 app.post('/signin', celebrate({
