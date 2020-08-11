@@ -1,7 +1,7 @@
 const Article = require('../models/article');
 const NotFoundError = require('../errors/not-found-err');
-const AuthorizationError = require('../errors/auth-err');
 const BadRequestError = require('../errors/bad-request-err');
+const ForbiddenError = require('../errors/forbidden-err');
 
 module.exports.getArticles = (req, res, next) => {
   Article.find({ owner: req.user._id })
@@ -51,7 +51,7 @@ module.exports.deleteArticle = (req, res, next) => {
         Article.findByIdAndRemove({ _id: article._id })
           .then(() => { res.send({ article }); });
       } else {
-        throw new AuthorizationError('Запрещено удалять чужие статьи');
+        throw new ForbiddenError('Запрещено удалять чужие статьи');
       }
     })
     .catch(next);

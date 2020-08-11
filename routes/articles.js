@@ -1,4 +1,5 @@
 const articlesRouter = require('express').Router();
+const validator = require('validator');
 const { celebrate, Joi } = require('celebrate');
 const { createArticle, getArticles, deleteArticle } = require('../controllers/article');
 
@@ -11,8 +12,18 @@ articlesRouter.post('/articles', celebrate({
     text: Joi.string().required(),
     date: Joi.string().required(),
     source: Joi.string().required(),
-    link: Joi.string().required(),
-    image: Joi.string().required(),
+    link: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Неккоректно заполненно поле');
+    }),
+    image: Joi.string().required().custom((value, helpers) => {
+      if (validator.isURL(value)) {
+        return value;
+      }
+      return helpers.message('Неккоректно заполненно поле');
+    }),
   }),
 }), createArticle);
 
