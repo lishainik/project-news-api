@@ -1,12 +1,13 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const { celebrate, Joi, errors } = require('celebrate');
 const limiter = require('./middlewares/rate-limiter');
-const { login } = require('./controllers/login');
+const { login, logOut } = require('./controllers/login');
 const { createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
@@ -16,8 +17,22 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000 } = process.env;
 
+const whitelist = ['http://lowmill.tk', 'https://lowmill.tk', 'http://localhost:8080', 'https://lishainik.github.io/project-news-front/'];
+const corsOptions = {
+  origin(origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: 'GET, POST, DELETE',
+};
+
 const app = express();
 app.set('trust proxy', 1);
+app.use(cors(corsOptions));
 app.use(limiter);
 app.use(helmet());
 app.use(bodyParser.json());
@@ -32,6 +47,8 @@ mongoose.connect('mongodb://localhost:27017/diploma-db', {
 });
 app.set('trust proxy', 1);
 app.use(requestLogger);
+
+app.get('/signoff', logOut);
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
