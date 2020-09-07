@@ -31,3 +31,10 @@ module.exports.login = (req, res, next) => {
       .catch(next);
   }
 };
+
+module.exports.logOut = (req, res) => {
+  res
+    .cookie('jwt', '', { maxAge: 1, httpOnly: true })
+    .send({ logOut: 'success' })
+    .end();
+};
